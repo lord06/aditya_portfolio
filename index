@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aditya | Cinematic Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:#0b0b0b;color:#fff;overflow-x:hidden;cursor:none;scroll-behavior:smooth}
+
+/* CURSOR */
+.cursor{position:fixed;width:12px;height:12px;border-radius:50%;background:#fff;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+.cursor-trail{position:fixed;width:30px;height:30px;border:1px solid #fff;border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:0.5}
+
+/* HERO */
+.hero{height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative}
+.hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(40%);z-index:-1}
+.cta{margin-top:20px;padding:12px 25px;border:1px solid #fff;cursor:pointer}
+
+/* CATEGORY */
+.categories{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:100px 8%}
+.card{height:250px;border-radius:14px;overflow:hidden;cursor:pointer;position:relative}
+.card video{width:100%;height:100%;object-fit:cover}
+.card span{position:absolute;bottom:20px;left:20px;font-size:1.2rem}
+
+/* MODAL */
+.modal{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-content{width:90%;max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.modal video{width:100%;border-radius:10px}
+.close{position:absolute;top:20px;right:30px;font-size:28px;cursor:pointer}
+
+/* CONTACT */
+.contact{padding:100px 8%;text-align:center}
+.btn{display:inline-block;margin:10px;padding:12px 20px;border:1px solid #fff;cursor:pointer;text-decoration:none;color:#fff}
+
+/* AUDIO BARS */
+.audio-bars{position:fixed;bottom:0;left:0;width:100%;height:4px;display:flex}
+.bar{flex:1;background:#fff;opacity:0.2;transform-origin:bottom}
+
+@media(max-width:768px){
+ .categories{grid-template-columns:1fr}
+ .modal-content{grid-template-columns:1fr}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="trail"></div>
+<div class="audio-bars" id="bars"></div>
+
+<!-- HERO INTRO -->
+<section class="hero">
+<video autoplay muted loop playsinline>
+<source src="your-showreel.mp4">
+</video>
+<div>
+<h1>I'm Aditya Gupta</h1>
+<p style="max-width:600px;margin:auto;opacity:0.8;line-height:1.6">
+I'm Aditva Gupta, a passionate graphic designer and video editor with a growing portfolio of freelance and academic work. With 2 years of experience in digital marketing and team management, I bring creative thinking and a problem-solving mindset to every project. I've worked on crypto meme content, digital stickers, and video editing assignments — both short and long-form.
+</p>
+<div class="cta" onclick="scrollToWork()">Explore Work ↓</div>
+</div>
+</section>
+
+<!-- CATEGORY SECTION -->
+<section id="work" class="categories">
+<div class="card" onclick="openModal('cinematic')">
+<video autoplay muted loop src="preview1.mp4"></video>
+<span>Cinematic</span>
+</div>
+<div class="card" onclick="openModal('reels')">
+<video autoplay muted loop src="preview2.mp4"></video>
+<span>Reels</span>
+</div>
+<div class="card" onclick="openModal('motion')">
+<video autoplay muted loop src="preview3.mp4"></video>
+<span>Motion</span>
+</div>
+<div class="card" onclick="openModal('ai')">
+<video autoplay muted loop src="preview4.mp4"></video>
+<span>AI Edits</span>
+</div>
+</section>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="close" onclick="closeModal()">✕</div>
+<div class="modal-content" id="modalContent"></div>
+</div>
+
+<!-- CONTACT -->
+<section class="contact">
+<h2>Let's Work Together</h2>
+<a href="mailto:yourmail@example.com" class="btn">Email Me</a>
+<a href="#" class="btn">Instagram</a>
+</section>
+
+<script>
+
+/* CURSOR */
+const cursor=document.getElementById('cursor');
+const trail=document.getElementById('trail');
+window.addEventListener('mousemove',e=>{
+ cursor.style.transform=`translate(${e.clientX}px,${e.clientY}px)`;
+ setTimeout(()=>trail.style.transform=`translate(${e.clientX}px,${e.clientY}px)`,60);
+});
+
+/* SCROLL */
+function scrollToWork(){
+ document.getElementById('work').scrollIntoView({behavior:'smooth'});
+}
+
+/* MODAL VIDEO SYSTEM */
+let videos={
+ cinematic:['video1.mp4','video2.mp4'],
+ reels:['video3.mp4','video4.mp4'],
+ motion:['video5.mp4','video6.mp4'],
+ ai:['video7.mp4','video8.mp4']
+};
+
+function openModal(type){
+ const container=document.getElementById('modalContent');
+ container.innerHTML = videos[type].map(v=>`<video src="${v}" autoplay muted loop playsinline controls></video>`).join('');
+ document.getElementById('modal').style.display='flex';
+}
+
+function closeModal(){
+ document.getElementById('modal').style.display='none';
+}
+
+/* AUDIO BARS SAFE */
+const barsContainer=document.getElementById('bars');
+const bars=[];
+for(let i=0;i<40;i++){
+ let b=document.createElement('div');
+ b.className='bar';
+ barsContainer.appendChild(b);
+ bars.push(b);
+}
+function animateBars(){
+ for(let i=0;i<bars.length;i++){
+  bars[i].style.transform=`scaleY(${Math.random()*2})`;
+ }
+ requestAnimationFrame(animateBars);
+}
+animateBars();
+
+</script>
+
+</body>
+</html>
