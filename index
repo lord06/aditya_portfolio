@@ -8,7 +8,58 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
-body{background:#0b0b0b;color:#fff;overflow-x:hidden;cursor:none;scroll-behavior:smooth}
+body{
+  background: radial-gradient(circle at 20% 20%, #1a1a1a, #0b0b0b 60%) ,
+              radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05), transparent 40%);
+  color:#fff;
+  overflow-x:hidden;
+  cursor:none;
+  scroll-behavior:smooth;
+}
+
+/* PREMIUM BACKGROUND LAYERS */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background: url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity:0.08;
+  pointer-events:none;
+  z-index:-1;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background: radial-gradient(600px at var(--x,50%) var(--y,50%), rgba(255,255,255,0.08), transparent 60%);
+  pointer-events:none;
+  z-index:-1;
+  transition:0.15s ease;
+}
+
+/* EXTRA LIGHT PULSE LAYER */
+body::marker{}
+
+.light-pulse{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background: radial-gradient(300px at var(--px,50%) var(--py,50%), rgba(255,255,255,var(--pulseOpacity,0.12)), transparent 70%);
+  mix-blend-mode:screen;
+  transition:0.08s linear;
+  filter: hue-rotate(var(--hue,0deg));
+}
+
+/* CLICK EXPANSION */
+.light-pulse.expand{
+  animation:pulseExpand 0.35s ease-out;
+}
+@keyframes pulseExpand{
+  0%{transform:scale(1);opacity:0.25}
+  100%{transform:scale(1.25);opacity:0}
+}
 
 /* CURSOR */
 .cursor{position:fixed;width:12px;height:12px;border-radius:50%;background:#fff;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
@@ -48,6 +99,10 @@ body{background:#0b0b0b;color:#fff;overflow-x:hidden;cursor:none;scroll-behavior
 </head>
 
 <body>
+<div class="light-pulse" id="lightPulse"></div>
+
+<!-- GLOBAL BACKGROUND VIDEO -->
+<video id="bgVideo" autoplay muted loop playsinline style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-3;opacity:0.4;filter:blur(2px);"><source src="background.mp4" type="video/mp4"></video>
 
 <div class="cursor" id="cursor"></div>
 <div class="cursor-trail" id="trail"></div>
@@ -105,9 +160,37 @@ I'm Aditva Gupta, a passionate graphic designer and video editor with a growing 
 /* CURSOR */
 const cursor=document.getElementById('cursor');
 const trail=document.getElementById('trail');
+let lastX=0,lastY=0,lastT=performance.now();
 window.addEventListener('mousemove',e=>{
- cursor.style.transform=`translate(${e.clientX}px,${e.clientY}px)`;
- setTimeout(()=>trail.style.transform=`translate(${e.clientX}px,${e.clientY}px)`,60);
+  const now=performance.now();
+  const dx=e.clientX-lastX;
+  const dy=e.clientY-lastY;
+  const dt=Math.max(16, now-lastT);
+  const speed=Math.min(2, Math.sqrt(dx*dx+dy*dy)/dt); // normalized speed
+
+  cursor.style.transform=`translate(${e.clientX}px,${e.clientY}px)`;
+  setTimeout(()=>trail.style.transform=`translate(${e.clientX}px,${e.clientY}px)`,60);
+
+  // background glow
+  document.body.style.setProperty('--x', e.clientX+'px');
+  document.body.style.setProperty('--y', e.clientY+'px');
+
+  // light pulse layer (speed-reactive intensity + color)
+  const pulse=document.getElementById('lightPulse');
+  pulse.style.setProperty('--px', e.clientX+'px');
+  pulse.style.setProperty('--py', e.clientY+'px');
+  pulse.style.setProperty('--pulseOpacity', (0.08 + speed*0.25).toFixed(3));
+  pulse.style.setProperty('--hue', (speed*120).toFixed(0)+'deg');
+
+  lastX=e.clientX; lastY=e.clientY; lastT=now;
+});
+
+// CLICK: EXPAND PULSE
+window.addEventListener('click',()=>{
+  const pulse=document.getElementById('lightPulse');
+  pulse.classList.remove('expand');
+  void pulse.offsetWidth; // reflow to restart animation
+  pulse.classList.add('expand');
 });
 
 /* SCROLL */
